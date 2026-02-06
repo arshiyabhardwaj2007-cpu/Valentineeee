@@ -1,0 +1,199 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE BESTIE PORTAL 🥂</title>
+    <style>
+        :root { --gold: #d4af37; --red: #ff4d6d
+ }
+        
+        body, html { 
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            background: var(--black); color: white; 
+            font-family: 'Georgia', serif; overflow: hidden; 
+        }
+
+        /* FIXED LIQUID AURA BACKGROUND */
+        #aura-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background: linear-gradient(45deg, #4b0082, #800000, #b8860b, #4b0082);
+            background-size: 400% 400%; 
+            animation: aura-flow 10s ease infinite; 
+            transition: all 0.4s ease;
+        }
+
+        @keyframes aura-flow { 
+            0% { background-position: 0% 50%; } 
+            50% { background-position: 100% 50%; } 
+            100% { background-position: 0% 50%; } 
+        }
+
+        /* States */
+        .angry-aura { 
+            background: linear-gradient(45deg, #ff0000, #330000, #ff4d6d) !important;
+            animation: aura-flow 0.5s linear infinite !important; 
+            filter: saturate(3);
+        }
+
+        .gold-aura { 
+            background: linear-gradient(45deg, #d4af37, #fff7ad, #d4af37) !important;
+            animation: aura-flow 3s ease-in-out infinite !important;
+        }
+
+        /* Main Character Glow */
+        #spotlight {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle 100px at var(--x, 50%) var(--y, 50%), rgba(212,175,55,0.3) 0%, transparent 100%);
+            pointer-events: none; z-index: 5;
+        }
+
+        .card { 
+            padding: 30px; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(15px); 
+            border: 1px solid var(--gold); border-radius: 25px; max-width: 350px; width: 80%; 
+            text-align: center; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10;
+        }
+
+        .hidden { display: none !important; }
+        
+        /* Separate Buttons */
+        .button-container {
+            margin-top: 40px;
+            height: 150px; /* Space for the button to move */
+            position: relative;
+        }
+
+        button { 
+            padding: 15px 30px; border-radius: 50px; border: none; 
+            font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 1rem;
+        }
+
+        #yesBtn { background: var(--gold); color: black; position: relative; z-index: 11; }
+        
+        #noBtn { 
+            background: #333; color: white; 
+            position: absolute; left: 50%; top: 60px; 
+            transform: translateX(-50%);
+            z-index: 1000;
+        }
+
+        .vow-box { text-align: left; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin: 15px 0; font-size: 0.85rem; }
+        .vow-item { margin: 8px 0; display: flex; align-items: center; gap: 8px; }
+
+        #hype-display { font-size: 1.5rem; color: var(--gold); font-weight: bold; margin: 20px 0; }
+        
+        .sparkle { position: absolute; width: 6px; height: 6px; background: var(--gold); border-radius: 50%; pointer-events: none; animation: fade 0.8s forwards; }
+        @keyframes fade { to { opacity: 0; transform: scale(2); } }
+    </style>
+</head>
+<body>
+
+    <div id="aura-bg"></div>
+    <div id="spotlight"></div>
+
+    <div class="card" id="screen1">
+        <h1 style="color:var(--gold)">BOND CHECK 🔐</h1>
+        <p>On what date did Arshiya turn into someone's puppet?</p>
+        <input type="text" id="passInput" style="background:transparent; border:none; border-bottom:1px solid var(--gold); color:white; text-align:center; padding:10px;" placeholder="DD Month">
+        <br><br><button onclick="checkPass()">DECRYPT</button>
+    </div>
+
+    <div class="card hidden" id="screen2">
+        <h1 style="color:var(--gold)">THE PROMISE 📜</h1>
+        <div class="vow-box">
+            <div class="vow-item"><input type="checkbox" class="vow"> <span>I promise never to think of leaving</span></div>
+            <div class="vow-item"><input type="checkbox" class="vow"> <span>I promise to always be there</span></div>
+            <div class="vow-item"><input type="checkbox" class="vow"> <span>I promise to listen to all your bakwas</span></div>
+        </div>
+        <button onclick="checkVows()">I AGREE FOREVER</button>
+    </div>
+
+    <div class="card hidden" id="screen3">
+        <h1>Will you be my Valentines? 🥂</h1>
+        <div class="button-container">
+            <button id="yesBtn" onmouseover="beGold()" onmouseleave="beNormal()" onclick="celebrate()">YES!</button>
+            <button id="noBtn" onmouseover="dodgeNo()" ontouchstart="dodgeNo()">No</button>
+        </div>
+    </div>
+
+    <div class="card hidden" id="screen4">
+        <h1 style="color:var(--gold)">OFFICIALLY MINE ❤️</h1>
+        <div id="hype-display">Need a boost?</div>
+        <button style="width: 100%;" onclick="startHype()">🚨 EMERGENCY HYPE 🚨</button>
+        <p style="font-size: 0.9rem; margin-top: 25px; color: var(--gold); font-style: italic;">
+            "I will be your puppet forever."
+        </p>
+    </div>
+
+    <script>
+        const aura = document.getElementById('aura-bg');
+        
+        // Tracking touch/mouse for spotlight
+        function updateSpotlight(e) {
+            const x = e.clientX || e.touches[0].clientX;
+            const y = e.clientY || e.touches[0].clientY;
+            document.body.style.setProperty('--x', x + 'px');
+            document.body.style.setProperty('--y', y + 'px');
+            createSparkle(x, y);
+        }
+        window.addEventListener('mousemove', updateSpotlight);
+        window.addEventListener('touchmove', updateSpotlight);
+
+        function createSparkle(x, y) {
+            const s = document.createElement('div');
+            s.className = 'sparkle';
+            s.style.left = x + 'px'; s.style.top = y + 'px';
+            document.body.appendChild(s);
+            setTimeout(() => s.remove(), 800);
+        }
+
+        // Aura Controls
+        function beGold() { aura.classList.add('gold-aura'); }
+        function beNormal() { aura.classList.remove('gold-aura', 'angry-aura'); }
+        function beAngry() { aura.classList.add('angry-aura'); }
+
+        function checkPass() {
+            const val = document.getElementById('passInput').value.toLowerCase();
+            if (val.includes('29') && val.includes('november')) {
+                document.getElementById('screen1').classList.add('hidden');
+                document.getElementById('screen2').classList.remove('hidden');
+            } else { alert("Try again, fake bestie! 😂"); }
+        }
+
+        function checkVows() {
+            if ([...document.querySelectorAll('.vow')].every(v => v.checked)) {
+                document.getElementById('screen2').classList.add('hidden');
+                document.getElementById('screen3').classList.remove('hidden');
+            } else { alert("Check all the boxes first!"); }
+        }
+
+        function dodgeNo() {
+            beAngry();
+            const btn = document.getElementById('noBtn');
+            // Jump to a random position on the whole screen
+            const x = Math.random() * (window.innerWidth - 100);
+            const y = Math.random() * (window.innerHeight - 50);
+            btn.style.position = 'fixed';
+            btn.style.left = x + 'px';
+            btn.style.top = y + 'px';
+            btn.style.transform = 'none';
+        }
+
+        function celebrate() {
+            beGold();
+            document.getElementById('screen3').classList.add('hidden');
+            document.getElementById('screen4').classList.remove('hidden');
+        }
+
+        const msgs = ["ICONIC!", "A QUEEN!", "10/10 VIBES!", "THE BEST!", "MAIN CHARACTER!"];
+        function startHype() {
+            const d = document.getElementById('hype-display');
+            let i = 0;
+            const t = setInterval(() => {
+                d.innerText = msgs[Math.floor(Math.random()*msgs.length)];
+                if(i++ > 15) { clearInterval(t); d.innerText = "✨ YOU ARE A BEAUTIFUL PERSON INSIDE OUT ✨"; }
+            }, 100);
+        }
+    </script>
+</body>
+</html>
